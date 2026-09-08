@@ -1,10 +1,18 @@
 FROM php:8.2-cli
 
-# تثبيت الحزم الأساسية
-RUN apt-get update && apt-get install -y libzip-dev zip unzip git
+# تثبيت الحزم الأساسية بالإضافة لمكتبات معالجة الصور
+RUN apt-get update && apt-get install -y \
+    libzip-dev \
+    zip \
+    unzip \
+    git \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev
 
-# تثبيت إضافات PHP
-RUN docker-php-ext-install pdo_mysql zip
+# إعداد وتثبيت إضافات PHP المطلوبة
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo_mysql zip gd
 
 # تثبيت Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
