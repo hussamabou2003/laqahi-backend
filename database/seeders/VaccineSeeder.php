@@ -40,7 +40,10 @@ class VaccineSeeder extends Seeder
         ];
 
         foreach ($vaccines as $vaccine) {
-            Vaccine::create($vaccine);
+            Vaccine::updateOrCreate(
+                ['name' => $vaccine['name']],
+                $vaccine
+            );
         }
     }
 }
