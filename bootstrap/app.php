@@ -13,6 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->api(prepend: [
+            \App\Http\Middleware\CheckMaintenanceMode::class,
+        ]);
         // التطبيق API خالص: لا يوجد مسار login، لذا نلغي إعادة توجيه الضيوف
         // ويصبح الرد على أي طلب غير مصادق استثناءً يُعرض كـ JSON 401
         $middleware->redirectGuestsTo(fn () => null);

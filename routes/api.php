@@ -43,6 +43,13 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
 
     Route::get('reports', [AdminReportController::class, 'reports']);
     Route::get('audit', [AdminReportController::class, 'auditLogs']);
+
+    // Settings & Backup
+    Route::get('settings', [\App\Http\Controllers\AdminSettingsController::class, 'getSettings']);
+    Route::post('settings', [\App\Http\Controllers\AdminSettingsController::class, 'updateSettings']);
+    Route::post('settings/change-password', [\App\Http\Controllers\AdminSettingsController::class, 'changePassword']);
+    Route::post('settings/kill-sessions', [\App\Http\Controllers\AdminSettingsController::class, 'killSessions']);
+    Route::get('backup', [\App\Http\Controllers\AdminSettingsController::class, 'backup']);
 });
 
 // مسارات مشتركة لكل الأدوار المصادقة (المراكز واللقاحات)
