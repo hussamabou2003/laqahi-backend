@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Appointment extends Model
 {
-    protected $fillable = ['child_id', 'doctor_id', 'center_id', 'vaccine_id', 'appointment_date', 'status', 'notes', 'confirmed_by_parent'];
+    protected $fillable = ['child_id', 'doctor_id', 'center_id', 'vaccine_id', 'appointment_date', 'status', 'notes', 'confirmed_by_parent', 'manufacturer', 'batch_number'];
 
     protected $appends = ['display_status'];
 

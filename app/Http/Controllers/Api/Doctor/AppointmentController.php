@@ -88,6 +88,8 @@ class AppointmentController extends ApiController
             'status' => 'completed',
             'doctor_id' => $doctor->id,
             'notes' => $request->input('notes'),
+            'manufacturer' => $request->input('manufacturer'),
+            'batch_number' => $request->input('batch_number'),
         ]);
         $appointment->refresh();
 
