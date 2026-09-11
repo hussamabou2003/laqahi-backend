@@ -34,9 +34,9 @@ class ReportController extends ApiController
             ->where('appointment_date', '<', now())
             ->count();
 
-        // إحصائيات كل مركز مع نسبة التغطية = الجرعات المأخوذة / إجمالي الجرعات المجدولة
+        // إحصائيات المراكز
         $perCenterStats = Appointment::query()
-            ->selectRaw("center_id, COUNT(*) AS scheduled, SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS completed")
+            ->selectRaw("center_id, COUNT(*) AS scheduled, SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS completed, SUM(CASE WHEN status = 'booked' AND appointment_date < NOW() THEN 1 ELSE 0 END) AS overdue")
             ->groupBy('center_id')
             ->get()
             ->keyBy('center_id');
@@ -48,6 +48,7 @@ class ReportController extends ApiController
                 $stats = $perCenterStats->get($center->id);
                 $scheduled = (int) ($stats->scheduled ?? 0);
                 $completed = (int) ($stats->completed ?? 0);
+                $overdue = (int) ($stats->overdue ?? 0);
 
                 return [
                     'center_id' => $center->id,
@@ -55,13 +56,38 @@ class ReportController extends ApiController
                     'children_count' => $center->children_count,
                     'doses_scheduled' => $scheduled,
                     'doses_completed' => $completed,
+                    'doses_overdue' => $overdue,
                     'coverage_percentage' => $scheduled > 0 ? round($completed / $scheduled * 100, 1) : 0,
                 ];
             });
 
-        return $this->success('تم جلب التقارير بنجاح', [
+        // بيانات الأطفال للتقارير
+        $childrenData = Child::with(['center', 'appointments'])->get()->map(function ($child) {
+            $total = $child->appointments->count();
+            $completed = $child->appointments->where('status', 'completed')->count();
+            $overdue = $child->appointments->where('status', 'booked')->filter(function ($app) {
+                return $app->appointment_date < now();
+            })->count();
+            $remaining = $child->appointments->where('status', 'booked')->count();
+            
+            $percentage = $total > 0 ? round(($completed / $total) * 100, 1) : 0;
+
+            return [
+                'id' => $child->id,
+                'name' => $child->name,
+                'center_name' => $child->center ? $child->center->name : 'غير محدد',
+                'birth_date' => $child->birth_date ? $child->birth_date->format('Y-m-d') : '-',
+                'percentage' => $percentage,
+                'overdue' => $overdue,
+                'remaining' => $remaining,
+                'is_completed' => $total > 0 && $completed === $total
+            ];
+        });
+
+        return $this->success('تم جلب البيانات بنجاح', [
             'totals' => $totals,
             'coverage_per_center' => $centers,
+            'children_report' => $childrenData
         ]);
     }
 
