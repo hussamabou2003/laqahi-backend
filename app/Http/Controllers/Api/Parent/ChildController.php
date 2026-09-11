@@ -66,6 +66,25 @@ class ChildController extends ApiController
         // توليد جدول اللقاحات تلقائياً حسب تاريخ الميلاد
         $appointmentsCount = $this->scheduleService->generateFor($child);
 
+        if (!$parent->welcome_email_sent) {
+            $overdueAppointments = \App\Models\Appointment::where('child_id', $child->id)
+                ->where('status', 'booked')
+                ->where('appointment_date', '<', now()->startOfDay())
+                ->exists();
+            
+            $overdueChildren = [];
+            if ($overdueAppointments) {
+                $overdueChildren[] = ['name' => $child->name];
+            }
+
+            try {
+                \Illuminate\Support\Facades\Mail::to($parent->email)->send(new \App\Mail\ParentWelcomeEmail($parent, $overdueChildren));
+                $parent->update(['welcome_email_sent' => true]);
+            } catch (\Exception $e) {
+                // Ignore mail errors
+            }
+        }
+
         $this->audit($parent, 'created_child', 'children', $child->id, null, $child->toArray());
 
         return $this->success('تمت إضافة الطفل وتوليد جدول اللقاحات بنجاح', [
