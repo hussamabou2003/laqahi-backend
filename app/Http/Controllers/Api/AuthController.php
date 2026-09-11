@@ -63,6 +63,8 @@ class AuthController extends ApiController
             'national_id' => 'required|string|max:20|unique:parents,national_id',
             'mother_name' => 'nullable|string|max:100',
             'father_name' => 'nullable|string|max:100',
+            'province' => 'required|string|max:100',
+            'center_id' => 'required|exists:health_centers,id',
         ]);
 
         if ($validator->fails()) {

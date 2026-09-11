@@ -12,7 +12,7 @@ class ParentUser extends Authenticatable
 
     protected $table = 'parents';
 
-    protected $fillable = ['name', 'email', 'password', 'phone', 'mother_name', 'father_name', 'national_id'];
+    protected $fillable = ['name', 'email', 'password', 'phone', 'mother_name', 'father_name', 'national_id', 'province', 'center_id'];
 
     protected $hidden = ['password'];
 

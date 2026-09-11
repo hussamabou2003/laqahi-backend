@@ -52,10 +52,13 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::get('backup', [\App\Http\Controllers\AdminSettingsController::class, 'backup']);
 });
 
-// مسارات مشتركة لكل الأدوار المصادقة (المراكز واللقاحات)
+// المسارات المشتركة (عامة)
+Route::get('centers', [\App\Http\Controllers\Api\SharedController::class, 'centers']);
+Route::get('vaccines', [\App\Http\Controllers\Api\SharedController::class, 'vaccines']);
+
+// المسارات التي تحتاج لتسجيل الدخول (إضافية)
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('centers', [SharedController::class, 'centers']);
-    Route::get('vaccines', [SharedController::class, 'vaccines']);
+    // يمكن وضع مسارات مشتركة هنا لو وجدت مستقبلاً
 });
 
 // ============ مسارات الطبيب ============
