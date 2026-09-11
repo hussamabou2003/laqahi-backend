@@ -84,10 +84,23 @@ class ReportController extends ApiController
             ];
         });
 
+        // تنبيهات المخزون
+        $lowStockItems = \App\Models\Inventory::with(['center', 'vaccine'])
+            ->whereColumn('quantity', '<=', 'min_threshold')
+            ->get();
+            
+        $warnings = $lowStockItems->map(function ($item) {
+            $centerName = $item->center ? $item->center->name : 'مركز غير معروف';
+            $vaccineName = $item->vaccine ? $item->vaccine->name : 'لقاح غير معروف';
+            // نحسب نسبة الانخفاض عن الحد الأدنى إذا أردنا أو مجرد رسالة
+            return "يوجد انخفاض في مخزون {$vaccineName} في {$centerName} (الكمية الحالية: {$item->quantity} والحد الأدنى: {$item->min_threshold}).";
+        });
+
         return $this->success('تم جلب البيانات بنجاح', [
             'totals' => $totals,
             'coverage_per_center' => $centers,
-            'children_report' => $childrenData
+            'children_report' => $childrenData,
+            'low_stock_warnings' => $warnings
         ]);
     }
 
