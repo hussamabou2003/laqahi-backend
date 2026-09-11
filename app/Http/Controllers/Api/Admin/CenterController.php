@@ -25,6 +25,7 @@ class CenterController extends ApiController
     {
         $validator = $this->makeValidator($request, [
             'name' => 'required|string|max:150',
+            'province' => 'required|string|max:100',
             'address' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
             'admin_id' => 'nullable|integer|exists:admins,id',
@@ -40,7 +41,7 @@ class CenterController extends ApiController
         $center = HealthCenter::create($data);
         $this->audit($request->user(), 'created_health_center', 'health_centers', $center->id, null, $center->toArray());
 
-        return $this->success('تم إنشاء المركز الصحي بنجاح', $center, 201);
+        return $this->success('تم إنشاء المركز بنجاح', $center, 201);
     }
 
     public function show(int $id): JsonResponse
@@ -48,10 +49,10 @@ class CenterController extends ApiController
         $center = HealthCenter::with('admin:id,name,email')->withCount(['doctors', 'children'])->find($id);
 
         if (!$center) {
-            return $this->error('المركز الصحي غير موجود', 404);
+            return $this->error('المركز غير موجود', 404);
         }
 
-        return $this->success('تم جلب بيانات المركز بنجاح', $center);
+        return $this->success('تم جلب تفاصيل المركز', $center);
     }
 
     public function update(Request $request, int $id): JsonResponse
@@ -59,11 +60,12 @@ class CenterController extends ApiController
         $center = HealthCenter::find($id);
 
         if (!$center) {
-            return $this->error('المركز الصحي غير موجود', 404);
+            return $this->error('المركز غير موجود', 404);
         }
 
         $validator = $this->makeValidator($request, [
             'name' => 'sometimes|required|string|max:150',
+            'province' => 'sometimes|required|string|max:100',
             'address' => 'sometimes|required|string|max:255',
             'phone' => 'nullable|string|max:20',
             'admin_id' => 'nullable|integer|exists:admins,id',
