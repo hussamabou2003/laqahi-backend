@@ -76,20 +76,49 @@ class AdminSettingsController extends Controller
         return response()->json(['message' => 'تم طرد جميع الأطباء والأهالي بنجاح']);
     }
 
-    public function backup()
+    public function backup(\Illuminate\Http\Request $request)
     {
-        // For simplicity and avoiding shell dependencies, we dump the important tables to JSON
+        $format = $request->query('format', 'json');
+
         $data = [
             'parents' => \App\Models\ParentUser::all(),
             'children' => \App\Models\Child::all(),
             'vaccines' => \App\Models\Vaccine::all(),
             'doctors' => \App\Models\Doctor::all(),
-            'centers' => \App\Models\HealthCenter::all(),
+            'health_centers' => \App\Models\HealthCenter::all(),
             'appointments' => \App\Models\Appointment::all(),
+            'inventory' => \App\Models\Inventory::all(),
         ];
 
+        if ($format === 'sql') {
+            $sql = "-- Laqahi MySQL Backup\n-- Generated: " . now() . "\n\n";
+            $sql .= "SET FOREIGN_KEY_CHECKS=0;\n\n";
+
+            foreach ($data as $table => $records) {
+                if ($records->isEmpty()) continue;
+                $sql .= "-- Table: $table\n";
+                foreach ($records as $record) {
+                    $row = $record->getAttributes();
+                    $keys = array_map(fn($k) => "`$k`", array_keys($row));
+                    $values = array_map(function($v) {
+                        if ($v === null) return 'NULL';
+                        return "'" . addslashes((string)$v) . "'";
+                    }, array_values($row));
+                    
+                    $sql .= "INSERT INTO `$table` (" . implode(', ', $keys) . ") VALUES (" . implode(', ', $values) . ");\n";
+                }
+                $sql .= "\n";
+            }
+            $sql .= "SET FOREIGN_KEY_CHECKS=1;\n";
+
+            $filename = 'laqahi_backup_' . date('Y-m-d_H-i-s') . '.sql';
+            return response($sql)
+                ->header('Content-Type', 'application/sql')
+                ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+        }
+
+        // Default JSON
         $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        
         $filename = 'laqahi_backup_' . date('Y-m-d_H-i-s') . '.json';
         
         return response($json)
