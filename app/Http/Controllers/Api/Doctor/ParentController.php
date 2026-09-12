@@ -94,4 +94,18 @@ class ParentController extends ApiController
 
         return $this->success('تم جلب قائمة أولياء الأمور بنجاح', $parents);
     }
+
+    /**
+     * جلب بيانات ولي أمر برقم الهوية
+     */
+    public function show(string $national_id): JsonResponse
+    {
+        $parent = ParentUser::where('national_id', $national_id)->first(['id', 'name', 'national_id', 'email', 'phone', 'province', 'district']);
+
+        if (!$parent) {
+            return $this->error('ولي الأمر غير موجود', 404);
+        }
+
+        return $this->success('تم العثور على ولي الأمر', $parent);
+    }
 }

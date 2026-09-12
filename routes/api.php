@@ -71,6 +71,7 @@ Route::prefix('doctor')->middleware('auth:doctor')->group(function () {
     Route::get('children/{child}', [DoctorChildController::class, 'show']);
     Route::delete('children/{child}', [DoctorChildController::class, 'destroy']);
     Route::get('parents', [DoctorParentController::class, 'index']);
+    Route::get('parents/{national_id}', [DoctorParentController::class, 'show']);
     Route::post('parents', [DoctorParentController::class, 'store']);
     Route::put('parents/{parent}', [DoctorParentController::class, 'update']);
 
