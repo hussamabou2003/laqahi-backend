@@ -58,7 +58,7 @@ class AuthController extends ApiController
         $validator = $this->makeValidator($request, [
             'name' => 'required|string|max:100',
             'email' => 'required|email|max:150|unique:parents,email',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required', 'string', 'min:8', 'confirmed', 'regex:/^(?=.*[A-Za-z])(?=.*\d).{8,}$/'],
             'phone' => 'nullable|string|max:20',
             'national_id' => 'required|string|max:20|unique:parents,national_id',
             'mother_name' => 'nullable|string|max:100',

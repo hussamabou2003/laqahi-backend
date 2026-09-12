@@ -67,7 +67,7 @@ class SettingsController extends ApiController
     {
         $validator = $this->makeValidator($request, [
             'reset_token' => 'required|string',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required', 'string', 'min:8', 'confirmed', 'regex:/^(?=.*[A-Za-z])(?=.*\d).{8,}$/'],
         ]);
 
         if ($validator->fails()) {

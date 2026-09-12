@@ -23,6 +23,7 @@ class ReportController extends ApiController
         $totals = [
             'children' => Child::count(),
             'centers' => HealthCenter::count(),
+            'admins' => Admin::count(),
             'doctors' => Doctor::count(),
             'parents' => ParentUser::count(),
             'doses_scheduled' => Appointment::count(),
