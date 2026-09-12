@@ -24,7 +24,7 @@ class ChildController extends ApiController
 
         $children = Child::query()
             ->where('center_id', $doctor->center_id)
-            ->with('parent:id,name,email,phone,national_id,province')
+            ->with('parent:id,name,email,phone,national_id,province,district')
             ->with(['appointments' => function ($query) {
                 $query->with('vaccine:id,name,dose_number,recommended_age_days')
                     ->orderBy('appointment_date');
@@ -55,7 +55,7 @@ class ChildController extends ApiController
         $doctor = $request->user();
 
         $child = Child::query()
-            ->with(['parent:id,name,email,phone,national_id,province', 'appointments.vaccine:id,name'])
+            ->with(['parent:id,name,email,phone,national_id,province,district', 'appointments.vaccine:id,name'])
             ->where('center_id', $doctor->center_id)
             ->where('qr_code', $qrCode)
             ->first();
@@ -101,6 +101,7 @@ class ChildController extends ApiController
             'gender' => 'required|in:male,female',
             'height' => 'nullable|numeric|min:0|max:300',
             'weight' => 'nullable|numeric|min:0|max:300',
+            'blood_type' => 'nullable|string|max:5',
             'parent_id' => 'required|integer|exists:parents,id',
         ]);
 
@@ -159,6 +160,7 @@ class ChildController extends ApiController
             'gender' => 'sometimes|in:male,female',
             'height' => 'nullable|numeric|min:0|max:300',
             'weight' => 'nullable|numeric|min:0|max:300',
+            'blood_type' => 'nullable|string|max:5',
         ]);
 
         if ($validator->fails()) {
@@ -196,7 +198,7 @@ class ChildController extends ApiController
         $doctor = $request->user();
 
         return Child::query()
-            ->with('parent:id,name,email,phone,national_id,province')
+            ->with('parent:id,name,email,phone,national_id,province,district')
             ->where('center_id', $doctor->center_id)
             ->find($id);
     }

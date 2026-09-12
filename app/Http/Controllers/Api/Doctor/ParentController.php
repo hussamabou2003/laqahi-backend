@@ -24,6 +24,8 @@ class ParentController extends ApiController
             'national_id' => 'required|string|max:20|unique:parents,national_id',
             'mother_name' => 'nullable|string|max:100',
             'father_name' => 'nullable|string|max:100',
+            'province' => 'nullable|string|max:100',
+            'district' => 'nullable|string|max:100',
         ]);
 
         if ($validator->fails()) {
@@ -57,6 +59,8 @@ class ParentController extends ApiController
             'password' => 'nullable|string|min:8',
             'phone' => 'nullable|string|max:20',
             'national_id' => 'sometimes|string|max:20|unique:parents,national_id,' . $id,
+            'province' => 'nullable|string|max:100',
+            'district' => 'nullable|string|max:100',
         ]);
 
         if ($validator->fails()) {

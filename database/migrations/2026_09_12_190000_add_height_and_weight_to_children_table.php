@@ -11,13 +11,14 @@ return new class extends Migration
         Schema::table('children', function (Blueprint $table) {
             $table->decimal('height', 5, 2)->nullable()->after('gender');
             $table->decimal('weight', 5, 2)->nullable()->after('height');
+            $table->string('blood_type', 5)->nullable()->after('weight');
         });
     }
 
     public function down(): void
     {
         Schema::table('children', function (Blueprint $table) {
-            $table->dropColumn(['height', 'weight']);
+            $table->dropColumn(['height', 'weight', 'blood_type']);
         });
     }
 };
