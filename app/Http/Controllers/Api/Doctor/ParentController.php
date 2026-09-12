@@ -43,6 +43,40 @@ class ParentController extends ApiController
         ], 201);
     }
 
+    public function update(Request $request, int $id): JsonResponse
+    {
+        $parent = ParentUser::find($id);
+
+        if (!$parent) {
+            return $this->error('سجل ولي الأمر غير موجود', 404);
+        }
+
+        $validator = $this->makeValidator($request, [
+            'name' => 'sometimes|string|max:100',
+            'email' => 'sometimes|email|max:150|unique:parents,email,' . $id,
+            'password' => 'nullable|string|min:8',
+            'phone' => 'nullable|string|max:20',
+            'national_id' => 'sometimes|string|max:20|unique:parents,national_id,' . $id,
+        ]);
+
+        if ($validator->fails()) {
+            return $this->validationError($validator);
+        }
+
+        $data = $validator->validated();
+        if (isset($data['password']) && empty($data['password'])) {
+            unset($data['password']);
+        }
+
+        $oldData = $parent->toArray();
+        $parent->update($data);
+
+        $doctor = $request->user();
+        $this->audit($doctor, 'updated_parent', 'parents', $parent->id, $oldData, $parent->toArray());
+
+        return $this->success('تم تحديث حساب ولي الأمر بنجاح', $parent);
+    }
+
     /**
      * قائمة أولياء الأمور الذين لديهم أطفال في مركز الطبيب
      */

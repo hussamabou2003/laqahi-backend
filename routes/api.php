@@ -65,12 +65,14 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::prefix('doctor')->middleware('auth:doctor')->group(function () {
     Route::get('children', [DoctorChildController::class, 'index']);
     Route::post('children', [DoctorChildController::class, 'store']);
+    Route::put('children/{child}', [DoctorChildController::class, 'update']);
     Route::get('children/scan/{qrCode}', [DoctorChildController::class, 'scan']);
     Route::get('children/{child}/qr', [DoctorChildController::class, 'qr']);
     Route::get('children/{child}', [DoctorChildController::class, 'show']);
     Route::delete('children/{child}', [DoctorChildController::class, 'destroy']);
     Route::get('parents', [DoctorParentController::class, 'index']);
     Route::post('parents', [DoctorParentController::class, 'store']);
+    Route::put('parents/{parent}', [DoctorParentController::class, 'update']);
 
     Route::get('appointments', [DoctorAppointmentController::class, 'index']);
     Route::get('notifications', [DoctorNotificationController::class, 'index']);

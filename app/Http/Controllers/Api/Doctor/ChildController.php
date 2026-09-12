@@ -143,6 +143,33 @@ class ChildController extends ApiController
         ], 201);
     }
 
+    public function update(Request $request, int $id): JsonResponse
+    {
+        $child = $this->findChildInCenter($request, $id);
+
+        if (!$child) {
+            return $this->error('سجل الطفل غير موجود أو ليس تابعاً لمركزك', 404);
+        }
+
+        $validator = $this->makeValidator($request, [
+            'name' => 'sometimes|string|max:100',
+            'birth_date' => 'sometimes|date|before_or_equal:today',
+            'gender' => 'sometimes|in:male,female',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->validationError($validator);
+        }
+
+        $oldData = $child->toArray();
+        $child->update($validator->validated());
+
+        $doctor = $request->user();
+        $this->audit($doctor, 'updated_child', 'children', $child->id, $oldData, $child->toArray());
+
+        return $this->success('تم تحديث بيانات الطفل بنجاح', $child);
+    }
+
     public function destroy(Request $request, int $id): JsonResponse
     {
         $child = $this->findChildInCenter($request, $id);
