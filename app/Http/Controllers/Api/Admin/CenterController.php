@@ -29,6 +29,7 @@ class CenterController extends ApiController
             'address' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
             'admin_id' => 'nullable|integer|exists:admins,id',
+            'status' => 'nullable|string|max:50',
         ]);
 
         if ($validator->fails()) {
@@ -69,6 +70,7 @@ class CenterController extends ApiController
             'address' => 'sometimes|required|string|max:255',
             'phone' => 'nullable|string|max:20',
             'admin_id' => 'nullable|integer|exists:admins,id',
+            'status' => 'sometimes|required|string|max:50',
         ]);
 
         if ($validator->fails()) {

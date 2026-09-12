@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class HealthCenter extends Model
 {
-    protected $fillable = ['name', 'province', 'address', 'phone', 'admin_id'];
+    protected $fillable = ['name', 'province', 'address', 'phone', 'admin_id', 'status'];
 
     public function admin()
     {
