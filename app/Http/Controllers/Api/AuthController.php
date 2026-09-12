@@ -91,10 +91,15 @@ class AuthController extends ApiController
     public function me(Request $request): JsonResponse
     {
         $user = $request->user();
+        $role = $this->actorType($user);
+
+        if ($role === 'doctor') {
+            $user->load('center');
+        }
 
         return $this->success('تم جلب البيانات بنجاح', [
             'user' => $user,
-            'role' => $this->actorType($user),
+            'role' => $role,
         ]);
     }
 
