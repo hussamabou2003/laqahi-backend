@@ -25,7 +25,7 @@ class Appointment extends Model
     {
         return match ($this->status) {
             'completed', 'cancelled' => $this->status,
-            default => $this->appointment_date->isPast() ? 'overdue' : 'upcoming',
+            default => $this->appointment_date->isBefore(now()->startOfDay()) ? 'overdue' : 'upcoming',
         };
     }
 
