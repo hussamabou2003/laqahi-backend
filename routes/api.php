@@ -61,6 +61,15 @@ Route::middleware('auth:sanctum')->group(function () {
     // يمكن وضع مسارات مشتركة هنا لو وجدت مستقبلاً
 });
 
+Route::get('/run-migrations-now', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        return response()->json(['message' => 'Migrations ran successfully!', 'output' => \Illuminate\Support\Facades\Artisan::output()]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+
 // ============ مسارات الطبيب ============
 Route::prefix('doctor')->middleware('auth:doctor')->group(function () {
     Route::get('children', [DoctorChildController::class, 'index']);
