@@ -50,6 +50,8 @@ class ChildController extends ApiController
             'name' => 'required|string|max:100',
             'birth_date' => 'required|date|before_or_equal:today',
             'gender' => 'required|in:male,female',
+            'height' => 'nullable|numeric|min:0|max:300',
+            'weight' => 'nullable|numeric|min:0|max:300',
             'center_id' => 'required|integer|exists:health_centers,id',
         ]);
 

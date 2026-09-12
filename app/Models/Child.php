@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Child extends Model
 {
-    protected $fillable = ['name', 'birth_date', 'gender', 'qr_code', 'parent_id', 'center_id'];
+    protected $fillable = ['name', 'birth_date', 'gender', 'height', 'weight', 'qr_code', 'parent_id', 'center_id'];
 
     protected function casts(): array
     {
