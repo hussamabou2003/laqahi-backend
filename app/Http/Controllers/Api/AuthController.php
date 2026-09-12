@@ -33,6 +33,7 @@ class AuthController extends ApiController
         $modelClass = self::ROLE_MODELS[$role];
 
         // الحقل يقبل البريد الإلكتروني أو رقم الهوية الوطنية
+        $identifier = $request->input('email');
         $query = $modelClass::where(function($q) use ($identifier) {
             $q->where('email', $identifier)->orWhere('national_id', $identifier);
         });
