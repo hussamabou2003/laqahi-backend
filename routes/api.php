@@ -101,4 +101,5 @@ Route::prefix('parent')->middleware('auth:parent')->group(function () {
     Route::post('settings/password/send-code', [\App\Http\Controllers\Api\Parent\SettingsController::class, 'sendCode']);
     Route::post('settings/password/verify-code', [\App\Http\Controllers\Api\Parent\SettingsController::class, 'verifyCode']);
     Route::post('settings/password/change', [\App\Http\Controllers\Api\Parent\SettingsController::class, 'changePassword']);
+    Route::post('settings/change-center', [\App\Http\Controllers\Api\Parent\SettingsController::class, 'changeCenter']);
 });

@@ -88,4 +88,41 @@ class SettingsController extends ApiController
 
         return $this->success('تم تغيير كلمة المرور بنجاح.');
     }
+
+    public function changeCenter(Request $request): JsonResponse
+    {
+        $validator = $this->makeValidator($request, [
+            'center_id' => 'required|exists:health_centers,id',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->validationError($validator);
+        }
+
+        $user = $request->user();
+        $newCenterId = $request->input('center_id');
+
+        // Update parent
+        $user->center_id = $newCenterId;
+        $user->save();
+
+        // Update all children
+        \App\Models\Child::where('parent_id', $user->id)->update(['center_id' => $newCenterId]);
+
+        // Update all UPCOMING appointments to the new center
+        $childrenIds = \App\Models\Child::where('parent_id', $user->id)->pluck('id');
+        \App\Models\Appointment::whereIn('child_id', $childrenIds)
+            ->where('status', 'booked')
+            ->update(['center_id' => $newCenterId]);
+
+        // Create a notification for the parent (as reminder)
+        \App\Models\Notification::create([
+            'parent_id' => $user->id,
+            'title' => 'تغيير المركز الصحي',
+            'message' => 'تم نقل ملفات أطفالك بنجاح إلى المركز الجديد. اللقاحات المعطاة محفوظة، والمواعيد القادمة ستبقى في وقتها وسيتم تذكيرك بها.',
+            'type' => 'system'
+        ]);
+
+        return $this->success('تم تغيير المركز الصحي بنجاح، ونقل كافة البيانات والمواعيد القادمة إليه.');
+    }
 }
