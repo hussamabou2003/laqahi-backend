@@ -93,15 +93,42 @@ class ReportController extends ApiController
         $warnings = $lowStockItems->map(function ($item) {
             $centerName = $item->center ? $item->center->name : 'مركز غير معروف';
             $vaccineName = $item->vaccine ? $item->vaccine->name : 'لقاح غير معروف';
-            // نحسب نسبة الانخفاض عن الحد الأدنى إذا أردنا أو مجرد رسالة
             return "يوجد انخفاض في مخزون {$vaccineName} في {$centerName} (الكمية الحالية: {$item->quantity} والحد الأدنى: {$item->min_threshold}).";
         });
+
+        // إحصائيات الرسم البياني (يومي - آخر 7 أيام)
+        $dailySeries = ['labels' => [], 'values' => []];
+        for ($i = 6; $i >= 0; $i--) {
+            $dateObj = now()->subDays($i);
+            $count = Appointment::where('status', 'completed')
+                ->whereDate('updated_at', $dateObj->format('Y-m-d'))
+                ->count();
+            // استخدام اسم اليوم بالإنجليزية أو التاريخ
+            $dailySeries['labels'][] = $dateObj->format('m/d');
+            $dailySeries['values'][] = $count;
+        }
+
+        // إحصائيات الرسم البياني (شهري - آخر 6 أشهر)
+        $monthlySeries = ['labels' => [], 'values' => []];
+        for ($i = 5; $i >= 0; $i--) {
+            $monthStart = now()->startOfMonth()->subMonths($i);
+            $monthEnd = now()->endOfMonth()->subMonths($i);
+            
+            $count = Appointment::where('status', 'completed')
+                ->whereBetween('updated_at', [$monthStart, $monthEnd])
+                ->count();
+                
+            $monthlySeries['labels'][] = $monthStart->format('Y-m');
+            $monthlySeries['values'][] = $count;
+        }
 
         return $this->success('تم جلب البيانات بنجاح', [
             'totals' => $totals,
             'coverage_per_center' => $centers,
             'children_report' => $childrenData,
-            'low_stock_warnings' => $warnings
+            'low_stock_warnings' => $warnings,
+            'daily_series' => $dailySeries,
+            'monthly_series' => $monthlySeries,
         ]);
     }
 
